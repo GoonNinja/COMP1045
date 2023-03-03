@@ -1,5 +1,5 @@
 //Adam Miszkiewicz 200547405 
-//Mar 1, 2023
+//Feb 23, 2023
 
 //Define the pins
 int button = 2;
@@ -210,7 +210,7 @@ NOTE_B4, NOTE_C5, 0, NOTE_B4, 0, NOTE_A4};
 
 //duration for Pirates of Carribean
 // Quarter Note is 250 ms when songSpeed = 1.0
-int durationsPOC[] = {
+int durationPOC[] = {
 125, 125, 250, 125, 125,
 125, 125, 250, 125, 125,
 125, 125, 250, 125, 125,
@@ -320,24 +320,21 @@ void POCsong() {
   for (int i = 0; i < totalNotes; i++)
   {
     const int currentNote = notesPOC[i];
-    float wait = durationsPOC[i] / songSpeed;
+    float wait = durationPOC[i] / songSpeed;
     // Play tone if currentNote is not 0 frequency, otherwise pause (noTone)
-    if (currentNote != 0)
-    {
-      tone(buzzer, notesPOC[i], wait); // tone(pin, frequency, duration)
+   tone(buzzer, notesPOC[i], wait); // tone(pin, frequency, duration)
        // Randomly select an LED to turn on and off
     	int ledIndex = random(0, 6);
     	digitalWrite(leds[ledIndex], HIGH);
     	delay(10);
     	digitalWrite(leds[ledIndex], LOW);
-    }
-    else
-    {
-      noTone(buzzer);
-    }
     // delay is used to wait for tone to finish playing before moving to next loop
     delay(wait);
+    
+    if(digitalRead(button) == HIGH){
+  	break;
   }
+ }
 }
 
 //function to play Mario Song
@@ -350,57 +347,52 @@ void Mariosong() {
     const int currentNote = notesMario[i];
     float wait = durationMario[i] / songSpeed;
     // Play tone if currentNote is not 0 frequency, otherwise pause (noTone)
-    if (currentNote != 0)
-    {
-      tone(buzzer, notesMario[i], wait); // tone(pin, frequency, duration)
+   tone(buzzer, notesMario[i], wait); // tone(pin, frequency, duration)
        // Randomly select an LED to turn on and off
     	int ledIndex = random(0, 6);
     	digitalWrite(leds[ledIndex], HIGH);
     	delay(10);
     	digitalWrite(leds[ledIndex], LOW);
-    }
-    else
-    {
-      noTone(buzzer);
-    }
     // delay is used to wait for tone to finish playing before moving to next loop
     delay(wait);
+    
+    if(digitalRead(button) == HIGH){
+  	break;
   }
+ }
 }
 
 //function to play Cantina Band
 void SWsong() {
   
- const int totalNotes = sizeof(notesSW) / sizeof(int);
+const int totalNotes = sizeof(notesSW) / sizeof(int);
   // Loop through each note
   for (int i = 0; i < totalNotes; i++)
   {
     const int currentNote = notesSW[i];
     float wait = durationSW[i] / songSpeed;
     // Play tone if currentNote is not 0 frequency, otherwise pause (noTone)
-    if (currentNote != 0)
-    {
-      tone(buzzer, notesSW[i], wait); // tone(pin, frequency, duration)
+   tone(buzzer, notesSW[i], wait); // tone(pin, frequency, duration)
        // Randomly select an LED to turn on and off
     	int ledIndex = random(0, 6);
     	digitalWrite(leds[ledIndex], HIGH);
     	delay(10);
     	digitalWrite(leds[ledIndex], LOW);
-    }
-    else
-    {
-      noTone(buzzer);
-    }
     // delay is used to wait for tone to finish playing before moving to next loop
     delay(wait);
+    
+    if(digitalRead(button) == HIGH){
+  	break;
   }
+ }
 }
 
 //Menu option on serial monitor
 void runMenu(){
    // Read the button state
   buttonState = digitalRead(button);
-	if (buttonState == HIGH && !songPlaying){
+ 
+	 if (buttonState == HIGH){
      delay(50);
     Serial.println("Which song would you like to play (1-Cantina Band, 2-Super Mario, 3-Pirates of Carribean)");
     while (!Serial.available()) {}
@@ -426,7 +418,7 @@ void runMenu(){
         Serial.println("Invalid input, please choose '1','2','3'.");
         break;
   }
- }   
+ } 
 }
 
 void setup(){
