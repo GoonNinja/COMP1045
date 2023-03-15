@@ -1,0 +1,102 @@
+//Adam Miszkiewicz 200547405
+//print survey to lcd screen and then show answers
+
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+const String questions[] = {"Pizza?", "Coffee?", "Roller Coasters?", "Gaming?", "School?"};
+const int NUM_QUESTIONS = 5;
+
+// Arrays to store the user's answers
+int yesCount = 0;
+int noCount = 0;
+int yesButton = 6;
+int noButton = 7;
+String answers[NUM_QUESTIONS];
+
+//setup
+void setup() {
+  lcd.begin(16, 2);
+  pinMode(yesButton, INPUT);
+  pinMode(noButton, INPUT);
+  Serial.begin(9600);
+  welcome(); // Call the welcome function to display the welcome message
+}
+
+//function that prints welcome message
+void welcome() {
+  lcd.clear();
+  lcd.print("Press YES or NO");
+  lcd.setCursor(0, 1);
+  lcd.print("Yes: L No: R");
+  while (!(digitalRead(yesButton) == HIGH || digitalRead(noButton) == HIGH));
+  delay(100);
+}
+
+//function that shows the question
+void displayQuestion(int index) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(questions[index]);
+  lcd.setCursor(0, 1);
+  lcd.print("Yes         No");
+}
+
+//function that will loop through the questions
+void survey() {
+  for (int i = 0; i < NUM_QUESTIONS; i++) {
+    displayQuestion(i);
+
+    // Wait for user input
+    while (true) {
+      if (digitalRead(yesButton) == HIGH) {
+        delay(50);
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        answers[i] = "Yes";
+        yesCount++;
+        delay(1000);
+        break;
+      } 
+      
+      else if (digitalRead(noButton) == HIGH) {
+        delay(50);
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        answers[i] = "No";
+        noCount++;
+        delay(1000);
+        break;
+      }
+    }
+  }
+}
+
+//function to display results
+void displayResults() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Yes: ");
+  lcd.print(yesCount);
+  lcd.setCursor(0, 1);
+  lcd.print("No: ");
+  lcd.print(noCount);
+}
+
+//main loop
+void loop() {
+  survey();
+  displayResults();
+
+  while (true) {
+    if (digitalRead(yesButton) == HIGH || digitalRead(noButton) == HIGH) {
+      delay(50);
+      yesCount = 0;
+      noCount = 0;
+      lcd.clear();
+      break;
+    }
+    delay(50);
+  }
+}
