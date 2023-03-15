@@ -1,0 +1,143 @@
+//Adam Miszkiewicz 200547405
+//LCD Screen 3 topic 5 options pick and save then print to user
+
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+//Arrays for the items to be listed
+const String sports[] = {"Football", "Soccer", "Volleyball", "Basketball", "Lacrosse"};
+const String chocolate[] = {"Mr.Big", "Coffee Crisp", "Oh Henry", "Kit Kat", "Aero"};
+const String luxury[] = {"Prada", "Chanel", "Valentino", "Dior", "Gucci"};
+
+//Array to store answers
+String answers[3];
+String ans1 = "";
+String ans2 = "";
+String ans3 = "";
+
+int button = 6;
+int count = 0;
+
+void setup()
+{
+  lcd.begin(16, 2);
+  pinMode(button, INPUT);
+  Serial.begin(9600);
+}
+
+//function to loop welcome message
+void welcome()
+{
+  if(digitalRead(button) == HIGH)
+  {
+    count = 1;
+    count++;
+    
+    for (int i = 0; i <= 16; i++) 
+    {
+    lcd.clear();
+    lcd.setCursor(i, 0);
+    lcd.print("Welcome!");
+    delay(200);
+    }
+  }
+}
+
+//function for sports
+void sport()
+{
+  while(count == 2)
+ {
+    for (int i = 0; i < 5; i++)
+  {
+    lcd.clear();
+    lcd.print(sports[i]);//loop through the sports array and print i
+    delay(1000);
+    
+    if (digitalRead(button) == HIGH) 
+    {
+      delay(50);
+      lcd.clear();
+      count++; //increment count
+      ans1 = sports[i];//store the choice in ans1
+      answers[0] = ans1; //store ans1 in answers array
+      break;
+    }
+   }
+  }  
+ }
+
+//function for chocolate bars
+void chocolates()
+{
+  while(count == 3)
+ {
+    for (int i = 0; i < 5; i++)
+  {
+    lcd.clear();
+    lcd.print(chocolate[i]);//loop through the sports array and print i
+    delay(1000);
+    
+    if (digitalRead(button) == HIGH) 
+    {
+      delay(50);
+      lcd.clear();
+      count++; //increment count
+      ans2 = chocolate[i];//store the choice in ans1
+      answers[1] = ans2; //store ans1 in answers array
+      break;
+    }
+   }
+  }  
+ }
+
+//function for luxury brands
+void luxbrands()
+{
+  while(count == 4)
+ {
+    for (int i = 0; i < 5; i++)
+  {
+    lcd.clear();
+    lcd.print(luxury[i]);//loop through the sports array and print i
+    delay(1000);
+    
+    if (digitalRead(button) == HIGH) 
+    {
+      delay(50);
+      lcd.clear();
+      count++; //increment count
+      ans3 = luxury[i];//store the choice in ans1
+      answers[2] = ans3; //store ans1 in answers array
+      break;
+    }
+   }
+  }  
+ }
+
+//function to loop through answers
+void ansloop()
+{
+  while(count == 5)
+  {
+    count = 0;
+    
+    for(int i = 0; i < 3; i++)
+    {
+      lcd.clear();
+      lcd.print(answers[i]);
+      delay(1000);
+    }
+  }
+ 
+}
+
+void loop()
+{
+  welcome();
+  sport();
+  chocolates();
+  luxbrands();
+  ansloop();
+}
