@@ -1,41 +1,31 @@
-// Adam Miszkiewicz 200547405
-// C++ code for controlling two LEDs using an IR remote
-// Remote buttons used: 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21, 22, 24, 25, 26
+//Adam Miszkiewicz 200547405
+// C++ code
+// the remote buttons: 
+//1,2,4,5,6,8,9,10,12,13,14
+//16,17,18,20,21,22,24,25,26
 
 #include <IRremote.h>
-
-// Define IR remote button codes
 #define pwr 0
 #define btn1 16
 #define btn2 17
 #define btn3 18
 #define btn4 20
-
-// Set up pins for IR receiver and LEDs
 int RECV_PIN = 11;
 int green = 12;
 int yellow = 13;
-
-// Initialize menu state and power state variables
 int menuState = 0;
 bool power = false;
 int value;
-
-// Create an IRrecv object
 IRrecv irrecv(RECV_PIN);
 
 void setup()
 {
-  // Start serial communication and enable IR input
   Serial.begin(9600);
   irrecv.enableIRIn();
-
-  // Set LED pins as outputs
   pinMode(green, OUTPUT);
   pinMode(yellow, OUTPUT);
 }
 
-// Function to print a menu to the serial monitor
 void printMenu(const char* menuName, const char* option1, const char* option2, const char* option3, const char* option4) {
   Serial.println(menuName);
   Serial.println(option1);
@@ -46,23 +36,18 @@ void printMenu(const char* menuName, const char* option1, const char* option2, c
 
 void loop()
 {
-  // Check if IR remote sends a signal
   if (irrecv.decode())
   {
-    // Get the button code and resume IR receiving
     value = irrecv.decodedIRData.command;
     irrecv.resume();
     bool menuChanged = false;
 
-    // Toggle power state if the power button is pressed
     if (value == pwr)
     {
       power = !power;
       digitalWrite(green, LOW);
       digitalWrite(yellow, LOW);
       menuState = 0;
-      
-      // Print welcome message or goodbye message depending on the power state
       if (power) {
         Serial.println("Welcome to the LED menu system.");
         Serial.println("Press button 1 for Green LED Control Menu");
@@ -73,11 +58,37 @@ void loop()
       }
     }
 
-    // Process the button input if the system is powered on
     if (power)
     {
-      // Switch between menu states depending on the button pressed
       switch (menuState)
+      {
+        case 0:
+          if (value == btn1) { menuState = 1; menuChanged = true; }
+          else if (value == btn2) { menuState = 2; menuChanged = true; }
+          else if (value == btn3) { menuState = 3; menuChanged = true; }
+          break;
+        case 1:
+          if (value == btn1) digitalWrite(green, HIGH);
+          else if (value == btn2) digitalWrite(green, LOW);
+          else if (value == btn3) { menuState = 2; menuChanged = true; }
+          else if (value == btn4) { menuState = 3; menuChanged = true; }
+          break;
+        case 2:
+          if (value == btn1) digitalWrite(yellow, HIGH);
+          else if (value == btn2) digitalWrite(yellow, LOW);
+          else if (value == btn3) { menuState = 1; menuChanged = true; }
+          else if (value == btn4) { menuState = 3; menuChanged = true; }
+          break;
+        case 3:
+          if (value == btn1) { digitalWrite(green, HIGH); digitalWrite(yellow, HIGH); }
+          else if (value == btn2) { digitalWrite(green, LOW); digitalWrite(yellow, LOW); }
+          else if (value == btn3) { menuState = 1; menuChanged = true; }
+          else if (value == btn4) { menuState = 2; menuChanged = true; }
+          break;
+      }
+       if (menuChanged)
+  {
+    switch (menuState)
     {
       case 1:
         printMenu("Green LED Control Menu:",
