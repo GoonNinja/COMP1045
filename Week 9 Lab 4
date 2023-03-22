@@ -1,0 +1,258 @@
+//Adam Miszkiewicz 200547405
+// C++ code to control green and yellow LEDs using an IR remote
+// the remote buttons: 
+//1,2,4,5,6,8,9,10,12,13,14
+//16,17,18,20,21,22,24,25,26
+
+#include <IRremote.h>
+
+// Button definitions
+#define pwr 0
+#define btn1 16
+#define btn2 17
+#define btn3 18
+#define btn4 20
+
+// Pin definitions
+int RECV_PIN = 7;
+int leds[] = {13,12,11,10,9,8};
+
+// State variables
+int menuState = 0;
+bool power = false;
+bool lightshowRunning = false;
+int value;
+
+// Set up IR receiver
+IRrecv irrecv(RECV_PIN);
+
+// Function to print menu options
+void printMenu(const char* menuName, const char* option1, const char* option2, const char* option3, const char* option4) {
+  Serial.println(menuName);
+  Serial.println(option1);
+  Serial.println(option2);
+  Serial.println(option3);
+  Serial.println(option4);
+}
+
+//fucntion to turn off the leds
+void ledoff()
+{
+  digitalWrite(leds[0,1,2,3,4,5], LOW);
+}
+
+//function for lightshow1
+void lightshow1()
+{
+  lightshowRunning = true;
+  for(int i = 0; i < 20 && lightshowRunning; i++)
+  {
+    digitalWrite(leds[0], HIGH);
+    digitalWrite(leds[1], HIGH);
+    digitalWrite(leds[4], HIGH);
+    digitalWrite(leds[5], HIGH);
+    delay(300);
+    digitalWrite(leds[0], LOW);
+    digitalWrite(leds[1], LOW);
+    digitalWrite(leds[4], LOW);
+    digitalWrite(leds[5], LOW);
+    delay(300);
+    digitalWrite(leds[2], HIGH);
+    digitalWrite(leds[3], HIGH);
+    delay(300);
+    digitalWrite(leds[2], LOW);
+    digitalWrite(leds[3], LOW);
+    delay(300);
+    
+    // Check for IR signal
+      if (irrecv.decode()) {
+        value = irrecv.decodedIRData.command;
+        irrecv.resume();
+        if (value == btn2) {
+          lightshowRunning = false;
+        }
+     }
+  }
+  ledoff(); // Turn off the LEDs after stopping the lightshow
+}
+
+//Function for lightshow2
+void lightshow2()
+{
+  lightshowRunning = true;
+  for(int j = 0; j < 20 && lightshowRunning; j++)
+  {
+    for(int i = 0; i < 6 && lightshowRunning; i++)
+    {
+      digitalWrite(leds[i], HIGH);
+      delay(100);
+      digitalWrite(leds[i], LOW);
+      
+      // Check for IR signal
+      if (irrecv.decode()) {
+        value = irrecv.decodedIRData.command;
+        irrecv.resume();
+        if (value == btn2) {
+          lightshowRunning = false;
+        }
+      }
+    }
+  }
+  ledoff(); // Turn off the LEDs after stopping the lightshow
+}
+
+//Function for lightshow3
+void lightshow3()
+{
+  lightshowRunning = true;
+   for(int j = 0; j < 20 && lightshowRunning; j++)
+  {
+    for(int i = 0; i < 12 && lightshowRunning; i++)
+    {
+      digitalWrite(leds[0], HIGH);
+      delay(200);
+      digitalWrite(leds[0], LOW);
+      delay(200);
+      digitalWrite(leds[5], HIGH);
+      delay(200);
+      digitalWrite(leds[5], LOW);
+      delay(200);
+      digitalWrite(leds[1], HIGH);
+      delay(200);
+      digitalWrite(leds[1], LOW);
+      delay(200);
+      digitalWrite(leds[4], HIGH);
+      delay(200);
+      digitalWrite(leds[4], LOW);
+      delay(200);
+      digitalWrite(leds[2], HIGH);
+      delay(200);
+      digitalWrite(leds[2], LOW);
+      delay(200);
+      digitalWrite(leds[3], HIGH);
+      delay(200);
+      digitalWrite(leds[3], LOW);
+      delay(200);
+      
+      // Check for IR signal
+      if (irrecv.decode()) {
+        value = irrecv.decodedIRData.command;
+        irrecv.resume();
+        if (value == btn2) {
+          lightshowRunning = false;
+        }
+      }
+    }
+  }
+  ledoff(); // Turn off the LEDs after stopping the lightshow 
+}
+
+// Main setup function
+void setup()
+{
+  Serial.begin(9600);
+  irrecv.enableIRIn();
+  pinMode(leds[0,1,2,3,4,5], OUTPUT);
+}
+
+// Main loop function
+void loop()
+{
+  // Check for IR signal
+  if (irrecv.decode())
+  {
+    value = irrecv.decodedIRData.command;
+    if (value == btn2) 
+    {
+     lightshowRunning = false;
+    }
+    irrecv.resume();
+    bool menuChanged = false;
+
+    // Check for power button press
+    if (value == pwr)
+    {
+      power = !power;
+      digitalWrite(leds[0,1,2,3,4,5], LOW);
+      menuState = 0;
+      
+      // Display welcome message or goodbye message
+      if (power) {
+        Serial.println("Welcome to the LED menu system.");
+        Serial.println("Press button 1 for LightShow1 Control Menu");
+        Serial.println("Press button 2 for LightShow2 Control Menu");
+        Serial.println("Press button 3 for LightShow3 Control Menu");
+      } else {
+        Serial.println("Goodbye. Thanks for using the LED menu system.");
+      }
+    }
+
+    // Only proceed if power is on
+    if (power)
+    {
+      // Handle menu navigation and LED control
+      switch (menuState)
+      {
+        case 0:
+          if (value == btn1) { menuState = 1; menuChanged = true; }
+          else if (value == btn2) { menuState = 2; menuChanged = true; }
+          else if (value == btn3) { menuState = 3; menuChanged = true; }
+          break;
+        case 1:
+          if (value == btn1) { lightshow1(); }
+          else if (value == btn2) { ledoff(); }
+          else if (value == btn3) { menuState = 2; menuChanged = true; }
+          else if (value == btn4) { menuState = 3; menuChanged = true; }
+          break;
+        case 2:
+          if (value == btn1) { lightshow2(); }
+          else if (value == btn2) { ledoff(); }
+          else if (value == btn3) { menuState = 1; menuChanged = true; }
+          else if (value == btn4) { menuState = 3; menuChanged = true; }
+          break;
+        case 3:
+          if (value == btn1) { lightshow3(); }
+          else if (value == btn2) { ledoff(); }
+          else if (value == btn3) { menuState = 1; menuChanged = true; }
+          else if (value == btn4) { menuState = 2; menuChanged = true; }
+          break;
+      }
+      
+// Check if the menu state has changed
+if (menuChanged)
+{
+  // Depending on the menu state, display a different menu
+  switch (menuState)
+  {
+    // Case 1: lightshow1 Control Menu
+    case 1:
+      printMenu("LightShow1 Control Menu:",
+                "1. Turn ON LightShow",
+                "2. Turn OFF LightShow",
+                "3. Go to LightShow2 Control Menu",
+                "4. Go to LightShow3 Control Menu");
+      break;
+
+    // Case 2: lightshow2 Control Menu
+    case 2:
+      printMenu("LightShow2 Control Menu:",
+                "1. Turn ON LightShow",
+                "2. Turn OFF LightShow",
+                "3. Go to LightShow1 Control Menu",
+                "4. Go to LightShow3 Control Menu");
+      break;
+
+    // Case 3: lightshow3 Control Menu
+    case 3:
+      printMenu("LightShow3 Control Menu:",
+                "1. Turn ON LightShow",
+                "2. Turn OFF LightShow",
+                "3. Go to LightShow1 Control Menu",
+                "4. Go to LightShow2 Control Menu");
+      break;
+    }
+   }
+  }
+ }
+}
+ 
