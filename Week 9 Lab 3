@@ -1,31 +1,32 @@
 //Adam Miszkiewicz 200547405
-// C++ code
+// C++ code to control green and yellow LEDs using an IR remote
 // the remote buttons: 
 //1,2,4,5,6,8,9,10,12,13,14
 //16,17,18,20,21,22,24,25,26
 
 #include <IRremote.h>
+
+// Button definitions
 #define pwr 0
 #define btn1 16
 #define btn2 17
 #define btn3 18
 #define btn4 20
+
+// Pin definitions
 int RECV_PIN = 11;
 int green = 12;
 int yellow = 13;
+
+// State variables
 int menuState = 0;
 bool power = false;
 int value;
+
+// Set up IR receiver
 IRrecv irrecv(RECV_PIN);
 
-void setup()
-{
-  Serial.begin(9600);
-  irrecv.enableIRIn();
-  pinMode(green, OUTPUT);
-  pinMode(yellow, OUTPUT);
-}
-
+// Function to print menu options
 void printMenu(const char* menuName, const char* option1, const char* option2, const char* option3, const char* option4) {
   Serial.println(menuName);
   Serial.println(option1);
@@ -34,20 +35,34 @@ void printMenu(const char* menuName, const char* option1, const char* option2, c
   Serial.println(option4);
 }
 
+// Main setup function
+void setup()
+{
+  Serial.begin(9600);
+  irrecv.enableIRIn();
+  pinMode(green, OUTPUT);
+  pinMode(yellow, OUTPUT);
+}
+
+// Main loop function
 void loop()
 {
+  // Check for IR signal
   if (irrecv.decode())
   {
     value = irrecv.decodedIRData.command;
     irrecv.resume();
     bool menuChanged = false;
 
+    // Check for power button press
     if (value == pwr)
     {
       power = !power;
       digitalWrite(green, LOW);
       digitalWrite(yellow, LOW);
       menuState = 0;
+      
+      // Display welcome message or goodbye message
       if (power) {
         Serial.println("Welcome to the LED menu system.");
         Serial.println("Press button 1 for Green LED Control Menu");
@@ -58,8 +73,10 @@ void loop()
       }
     }
 
+    // Only proceed if power is on
     if (power)
     {
+      // Handle menu navigation and LED control
       switch (menuState)
       {
         case 0:
@@ -86,31 +103,39 @@ void loop()
           else if (value == btn4) { menuState = 2; menuChanged = true; }
           break;
       }
-       if (menuChanged)
+      
+// Check if the menu state has changed
+if (menuChanged)
+{
+  // Depending on the menu state, display a different menu
+  switch (menuState)
   {
-    switch (menuState)
-    {
-      case 1:
-        printMenu("Green LED Control Menu:",
-                  "1. Turn ON green LED",
-                  "2. Turn OFF green LED",
-                  "3. Go to Yellow LED Control Menu",
-                  "4. Go to Both LEDs Control Menu");
-        break;
-      case 2:
-        printMenu("Yellow LED Control Menu:",
-                  "1. Turn ON yellow LED",
-                  "2. Turn OFF yellow LED",
-                  "3. Go to Green LED Control Menu",
-                  "4. Go to Both LEDs Control Menu");
-        break;
-      case 3:
-        printMenu("Both LEDs Control Menu:",
-                  "1. Turn ON both LEDs",
-                  "2. Turn OFF both LEDs",
-                  "3. Go to Green LED Control Menu",
-                  "4. Go to Yellow LED Control Menu");
-        break;
+    // Case 1: Green LED Control Menu
+    case 1:
+      printMenu("Green LED Control Menu:",
+                "1. Turn ON green LED",
+                "2. Turn OFF green LED",
+                "3. Go to Yellow LED Control Menu",
+                "4. Go to Both LEDs Control Menu");
+      break;
+
+    // Case 2: Yellow LED Control Menu
+    case 2:
+      printMenu("Yellow LED Control Menu:",
+                "1. Turn ON yellow LED",
+                "2. Turn OFF yellow LED",
+                "3. Go to Green LED Control Menu",
+                "4. Go to Both LEDs Control Menu");
+      break;
+
+    // Case 3: Both LEDs Control Menu
+    case 3:
+      printMenu("Both LEDs Control Menu:",
+                "1. Turn ON both LEDs",
+                "2. Turn OFF both LEDs",
+                "3. Go to Green LED Control Menu",
+                "4. Go to Yellow LED Control Menu");
+      break;
     }
    }
   }
